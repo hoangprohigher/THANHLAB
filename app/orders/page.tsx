@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import Link from "next/link";
 import { connectMongo } from "@/lib/mongodb";
 import { User } from "@/lib/models/User";
 import { Order } from "@/lib/models/Order";
@@ -20,7 +21,10 @@ export default async function OrdersPage() {
 								<div className="font-medium">#{String(o._id).slice(-6)}</div>
 								<div className="text-sm text-muted-foreground">{o.items.length} sản phẩm</div>
 							</div>
-							<div className="font-semibold">{o.total.toLocaleString()} đ</div>
+            <div className="flex items-center gap-3">
+              <div className="font-semibold">{o.total.toLocaleString()} đ</div>
+              <Link className="text-sm underline" href={`/api/invoice/${String(o._id)}`} target="_blank">Tải hóa đơn (PDF)</Link>
+            </div>
 						</li>
 					))}
 				</ul>
