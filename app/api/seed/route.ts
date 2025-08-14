@@ -168,6 +168,7 @@ export async function POST() {
 	// Create technical posts
 	const posts = await Post.create([
 		{
+			user: admin._id,
 			title: "Hướng dẫn lập trình Arduino cơ bản",
 			slug: "huong-dan-lap-trinh-arduino-co-ban",
 			content: `Arduino là một nền tảng phát triển phần cứng và phần mềm mã nguồn mở, được thiết kế để làm cho việc tạo ra các ứng dụng điện tử tương tác trở nên dễ dàng hơn.
@@ -203,6 +204,7 @@ void loop() {
 			tags: ["Arduino", "Lập trình", "Điện tử", "Cơ bản"],
 		},
 		{
+			user: admin._id,
 			title: "Xây dựng robot di chuyển tự động",
 			slug: "xay-dung-robot-di-chuyen-tu-dong",
 			content: `Robot di chuyển tự động là một dự án thú vị và thực tế trong lĩnh vực robotics. Trong bài viết này, chúng ta sẽ tìm hiểu cách xây dựng một robot đơn giản có thể di chuyển và tránh vật cản.
@@ -269,6 +271,7 @@ Với code này, robot sẽ di chuyển thẳng và tự động tránh vật c�
 			tags: ["Robot", "Tự động hóa", "Arduino", "Motor", "Cảm biến"],
 		},
 		{
+			user: admin._id,
 			title: "Sử dụng cảm biến DHT22 với Raspberry Pi",
 			slug: "su-dung-cam-bien-dht22-raspberry-pi",
 			content: `Cảm biến DHT22 là một cảm biến nhiệt độ và độ ẩm số có độ chính xác cao, rất phù hợp để sử dụng với Raspberry Pi trong các dự án IoT.
