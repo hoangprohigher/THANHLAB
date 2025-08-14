@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { connectMongo } from "@/lib/mongodb";
 import { Post } from "@/lib/models/Post";
 

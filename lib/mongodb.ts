@@ -1,15 +1,15 @@
 import mongoose from "mongoose";
 
+type MongooseCache = { conn: typeof mongoose | null; promise: Promise<typeof mongoose> | null };
+
 declare global {
+	// Extend the Node global object with a mongoose cache to persist across hot reloads
 	// eslint-disable-next-line no-var
-	var mongooseConn: { conn: typeof mongoose | null; promise: Promise<typeof mongoose> | null } | undefined;
+	var mongooseConn: MongooseCache | undefined;
 }
 
-let cached = global.mongooseConn;
-
-if (!cached) {
-	cached = global.mongooseConn = { conn: null, promise: null };
-}
+const globalForMongoose = global as unknown as { mongooseConn?: MongooseCache };
+const cached: MongooseCache = (globalForMongoose.mongooseConn ||= { conn: null, promise: null });
 
 export async function connectMongo(): Promise<typeof mongoose> {
 	const primaryUri = process.env.MONGODB_URI;
@@ -17,7 +17,7 @@ export async function connectMongo(): Promise<typeof mongoose> {
 	if (!primaryUri) {
 		throw new Error("Missing MONGODB_URI environment variable");
 	}
-	if (cached.conn) {
+		if (cached.conn) {
 		return cached.conn;
 	}
 	if (!cached.promise) {

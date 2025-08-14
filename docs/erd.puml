@@ -1,0 +1,79 @@
+@startuml
+!theme plain
+hide circle
+
+entity "User" as User {
+  _id : ObjectId
+  name : string
+  email : string
+  passwordHash : string
+  role : enum(admin|customer)
+}
+
+entity "Category" as Category {
+  _id : ObjectId
+  name : string
+  slug : string
+  description : string
+}
+
+entity "Product" as Product {
+  _id : ObjectId
+  name : string
+  slug : string
+  description : string
+  price : number
+  stock : number
+  images : string[]
+}
+
+entity "Order" as Order {
+  _id : ObjectId
+  total : number
+  status : enum(pending|paid|shipped|completed|canceled)
+}
+
+entity "Service" as Service {
+  _id : ObjectId
+  name : string
+  slug : string
+  description : string
+  price : number
+}
+
+entity "Request" as Request {
+  _id : ObjectId
+  content : string
+  status : enum(open|in_progress|resolved|closed)
+  adminReply : string
+}
+
+entity "Post" as Post {
+  _id : ObjectId
+  title : string
+  slug : string
+  content : string
+  tags : string[]
+}
+
+entity "Cart" as Cart {
+  _id : ObjectId
+}
+
+User ||--o{ Order : places
+User ||--o{ Request : files
+User ||--o{ Post : writes
+Category ||--o{ Product : groups
+Product ||--o{ Order : contains
+Service ||--o{ Request : requested
+User ||--|| Cart : owns
+Cart ||--o{ Product : items
+Product }o--|| Category : belongs
+Order }o--|| User : by
+Request }o--|| User : by
+Request }o--|| Service : of
+Post }o--|| User : by
+
+@enduml
+
+

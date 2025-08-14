@@ -1,0 +1,23 @@
+version: "3.9"
+services:
+  thanhlab-app:
+    build: .
+    container_name: thanhlab-app
+    ports:
+      - "6000:6000"
+    depends_on:
+      - thanhlab-mongodb
+    environment:
+      - PORT=6000
+      - MONGODB_URI=mongodb://thanhlab-mongodb:27017/thanhlab
+  thanhlab-mongodb:
+    image: mongo:7
+    container_name: thanhlab-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+volumes:
+  mongodb_data:
+
+
