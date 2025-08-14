@@ -15,7 +15,7 @@ RUN npm run build
 FROM node:18-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
-ENV PORT=6000
+ENV PORT=6001
 ENV HOSTNAME=0.0.0.0
 
 # Install only production dependencies for runtime
@@ -27,7 +27,7 @@ COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/next.config.ts ./next.config.ts
 
-EXPOSE 6000
-CMD ["npm", "start", "-p", "6000"]
+EXPOSE 6001
+CMD ["npm", "start"]
 
 
