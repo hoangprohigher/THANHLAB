@@ -2,6 +2,8 @@
 import useSWR from "swr";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { FileText, Edit, Trash2, Plus, Tag } from "lucide-react";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -10,10 +12,19 @@ export default function AdminPostsPage() {
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [content, setContent] = useState("");
+  const [tags, setTags] = useState("");
 
   async function addPost() {
-    await fetch("/api/admin/posts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title, slug, content }) });
-    setTitle(""); setSlug(""); setContent("");
+    const tagsArray = tags.split(",").map(tag => tag.trim()).filter(tag => tag);
+    await fetch("/api/admin/posts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, slug, content, tags: tagsArray }),
+    });
+    setTitle("");
+    setSlug("");
+    setContent("");
+    setTags("");
     mutate();
   }
 
@@ -24,24 +35,85 @@ export default function AdminPostsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-semibold">Quản lý bài viết</h1>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-        <input className="border rounded px-2 py-1" placeholder="Tiêu đề" value={title} onChange={(e) => setTitle(e.target.value)} />
-        <input className="border rounded px-2 py-1" placeholder="Slug" value={slug} onChange={(e) => setSlug(e.target.value)} />
-        <input className="border rounded px-2 py-1" placeholder="Nội dung" value={content} onChange={(e) => setContent(e.target.value)} />
-        <Button onClick={addPost}>Thêm</Button>
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-gray-900">Quản lý bài viết kỹ thuật</h2>
+        <div className="text-sm text-gray-500">
+          Tổng cộng: {data?.items?.length || 0} bài viết
+        </div>
       </div>
-      <ul className="space-y-2">
-        {(data?.items || []).map((p: any) => (
-          <li key={String(p._id)} className="border rounded p-3 flex items-center justify-between">
-            <div>
-              <div className="font-medium">{p.title}</div>
-              <div className="text-xs text-muted-foreground">{p.slug}</div>
+
+      {/* Add Post Form */}
+      <div className="bg-white rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+          <Plus className="h-5 w-5 mr-2 text-blue-600" />
+          Thêm bài viết mới
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <Input
+            placeholder="Tiêu đề bài viết"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+          <Input
+            placeholder="Slug"
+            value={slug}
+            onChange={(e) => setSlug(e.target.value)}
+          />
+        </div>
+        <div className="mb-4">
+          <Input
+            placeholder="Tags (phân cách bằng dấu phẩy)"
+            value={tags}
+            onChange={(e) => setTags(e.target.value)}
+          />
+        </div>
+        <div className="mb-4">
+          <textarea
+            className="w-full border rounded px-3 py-2 min-h-[120px]"
+            placeholder="Nội dung bài viết..."
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          />
+        </div>
+        <Button onClick={addPost} disabled={!title || !slug || !content}>
+          Thêm bài viết
+        </Button>
+      </div>
+
+      {/* Posts List */}
+      <div className="bg-white rounded-lg shadow">
+        <div className="px-6 py-4 border-b">
+          <h3 className="text-lg font-semibold text-gray-900">Danh sách bài viết</h3>
+        </div>
+        <div className="divide-y">
+          {(data?.items || []).map((post: any) => (
+            <div key={String(post._id)} className="px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="p-2 bg-orange-100 rounded-full">
+                  <FileText className="h-5 w-5 text-orange-600" />
+                </div>
+                <div>
+                  <div className="font-medium text-gray-900">{post.title}</div>
+                  <div className="text-sm text-gray-500">{post.slug}</div>
+                  <div className="text-xs text-gray-400 flex items-center mt-1">
+                    <Tag className="h-3 w-3 mr-1" />
+                    {(post.tags || []).join(", ")}
+                  </div>
+                </div>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => removePost(String(post._id))}
+                className="text-red-600 hover:text-red-700"
+              >
+                <Trash2 className="h-4 w-4 mr-1" />
+                Xóa
+              </Button>
             </div>
-            <button className="text-red-600 text-sm underline" onClick={() => removePost(String(p._id))}>Xóa</button>
-          </li>
-        ))}
-      </ul>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
