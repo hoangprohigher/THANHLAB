@@ -12,15 +12,26 @@ if (!cached) {
 }
 
 export async function connectMongo(): Promise<typeof mongoose> {
-	const uri = process.env.MONGODB_URI;
-	if (!uri) {
+	const primaryUri = process.env.MONGODB_URI;
+	const devFallbackUri = "mongodb://localhost:27017/thanhlab";
+	if (!primaryUri) {
 		throw new Error("Missing MONGODB_URI environment variable");
 	}
 	if (cached.conn) {
 		return cached.conn;
 	}
 	if (!cached.promise) {
-		cached.promise = mongoose.connect(uri, { dbName: "thanhlab" });
+		cached.promise = mongoose
+			.connect(primaryUri, { dbName: "thanhlab" })
+			.catch(async (err) => {
+				if (process.env.NODE_ENV !== "production") {
+					console.warn(
+						`Primary MongoDB connection failed: ${err?.message}. Trying localhost fallback...`
+					);
+					return mongoose.connect(devFallbackUri, { dbName: "thanhlab" });
+				}
+				throw err;
+			});
 	}
 	cached.conn = await cached.promise;
 	return cached.conn;
