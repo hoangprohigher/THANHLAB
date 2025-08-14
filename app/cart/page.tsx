@@ -3,6 +3,7 @@ import { connectMongo } from "@/lib/mongodb";
 import { Cart } from "@/lib/models/Cart";
 import { User } from "@/lib/models/User";
 import { Product } from "@/lib/models/Product";
+import { CartItemControls } from "@/components/cart-actions";
 
 export default async function CartPage() {
 	await connectMongo();
@@ -21,7 +22,10 @@ export default async function CartPage() {
 								<div className="font-medium">{it.product?.name}</div>
 								<div className="text-sm text-muted-foreground">Số lượng: {it.quantity}</div>
 							</div>
-							<div className="font-semibold">{(it.product?.price || 0).toLocaleString()} đ</div>
+                <div className="flex items-center gap-3">
+                  <div className="font-semibold">{(it.product?.price || 0).toLocaleString()} đ</div>
+                  <CartItemControls productId={String(it.product?._id)} initialQty={it.quantity} />
+                </div>
 						</li>
 					))}
 				</ul>

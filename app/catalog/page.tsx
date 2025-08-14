@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { AddToCartButton } from "@/components/cart-actions";
 import { connectMongo } from "@/lib/mongodb";
 import { Category } from "@/lib/models/Category";
 import { Product } from "@/lib/models/Product";
@@ -22,7 +23,10 @@ export default async function CatalogPage() {
 					<div key={String(p._id)} className="border rounded p-4">
 						<div className="font-medium">{p.name}</div>
 						<div className="text-sm text-muted-foreground">{p.category?.name}</div>
-						<div className="mt-2 font-semibold">{p.price.toLocaleString()} đ</div>
+                <div className="mt-2 flex items-center justify-between">
+                  <div className="font-semibold">{p.price.toLocaleString()} đ</div>
+                  <AddToCartButton productId={String(p._id)} />
+                </div>
 					</div>
 				))}
 			</div>
