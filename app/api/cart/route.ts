@@ -3,6 +3,7 @@ import { connectMongo } from "@/lib/mongodb";
 import { User } from "@/lib/models/User";
 import { Product } from "@/lib/models/Product";
 import { Cart } from "@/lib/models/Cart";
+import mongoose from "mongoose";
 
 async function getDemoUser() {
 	const email = "customer@thanhlab.vn";
@@ -26,13 +27,22 @@ export async function POST(req: NextRequest) {
 	if (!productId || !quantity) return NextResponse.json({ ok: false, error: "Missing productId/quantity" }, { status: 400 });
 	const product = await Product.findById(productId);
 	if (!product) return NextResponse.json({ ok: false, error: "Product not found" }, { status: 404 });
-	const cart = (await Cart.findOneAndUpdate(
-		{ user: user._id, "items.product": { $ne: product._id } },
-		{ $setOnInsert: { user: user._id }, $push: { items: { product: product._id, quantity } } },
-		{ upsert: true, new: true }
-	)) || (await Cart.findOne({ user: user._id }));
-	// If exists, update quantity
-	await Cart.updateOne({ user: user._id, "items.product": product._id }, { $inc: { "items.$.quantity": quantity } });
+	let cart = await Cart.findOne({ user: user._id });
+	if (!cart) {
+		cart = await Cart.create({ user: user._id, items: [{ product: product._id, quantity }] });
+		console.log("Cart created:", cart);
+	} else {
+		const item = cart.items.find((it: any) => String(it.product) === String(product._id));
+		if (item) {
+			item.quantity += quantity;
+			console.log("Updated quantity for product", product._id, "new quantity:", item.quantity);
+		} else {
+			cart.items.push({ product: product._id, quantity });
+			console.log("Added new product to cart:", product._id);
+		}
+		await cart.save();
+		console.log("Cart after save:", cart);
+	}
 	return NextResponse.json({ ok: true });
 }
 
@@ -51,7 +61,10 @@ export async function DELETE(req: NextRequest) {
 	const { searchParams } = new URL(req.url);
 	const productId = searchParams.get("productId");
 	if (!user || !productId) return NextResponse.json({ ok: false }, { status: 400 });
-	await Cart.updateOne({ user: user._id }, { $pull: { items: { product: productId } } });
+	await Cart.updateOne(
+		{ user: user._id },
+		{ $pull: { items: { product: new mongoose.Types.ObjectId(productId) } } }
+	);
 	return NextResponse.json({ ok: true });
 }
 

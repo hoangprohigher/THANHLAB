@@ -7,11 +7,21 @@ export function AddToCartButton({ productId }: { productId: string }) {
   const [loading, setLoading] = useState(false);
   async function add() {
     setLoading(true);
-    await fetch("/api/cart", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productId, quantity: 1 }),
-    });
+    try {
+      const res = await fetch("/api/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, quantity: 1 }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        alert("Đã thêm sản phẩm vào giỏ hàng!");
+      } else {
+        alert(data.error || "Thêm vào giỏ hàng thất bại!");
+      }
+    } catch (err) {
+      alert("Có lỗi xảy ra khi thêm vào giỏ hàng!");
+    }
     setLoading(false);
   }
   return (
@@ -21,7 +31,7 @@ export function AddToCartButton({ productId }: { productId: string }) {
   );
 }
 
-export function CartItemControls({ productId, initialQty, onChanged }: { productId: string; initialQty: number; onChanged?: () => void }) {
+export function CartItemControls({ productId, initialQty, onChanged, hideDelete }: { productId: string; initialQty: number; onChanged?: () => void; hideDelete?: boolean }) {
   const [qty, setQty] = useState<number>(initialQty);
   const [loading, setLoading] = useState(false);
 
@@ -55,9 +65,11 @@ export function CartItemControls({ productId, initialQty, onChanged }: { product
       <Button size="sm" onClick={() => updateQty(qty)} disabled={loading}>
         Cập nhật
       </Button>
-      <Button size="sm" variant="outline" onClick={remove} disabled={loading}>
-        Xóa
-      </Button>
+      {!hideDelete && (
+        <Button size="sm" variant="outline" onClick={remove} disabled={loading}>
+          Xóa
+        </Button>
+      )}
     </div>
   );
 }

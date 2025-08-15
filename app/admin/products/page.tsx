@@ -1,6 +1,7 @@
 "use client";
 import useSWR from "swr";
 import { useState } from "react";
+import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
@@ -9,6 +10,7 @@ import { Package, Edit, Trash2, Plus, DollarSign } from "lucide-react";
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 export default function AdminProductsPage() {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { data, mutate } = useSWR("/api/admin/products", fetcher);
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
@@ -16,6 +18,8 @@ export default function AdminProductsPage() {
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
   const [categoryId, setCategoryId] = useState("");
+  const [images, setImages] = useState<string[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const { data: categoriesData } = useSWR("/api/admin/categories", fetcher);
 
   async function addProduct() {
@@ -28,7 +32,8 @@ export default function AdminProductsPage() {
         description, 
         price: Number(price), 
         stock: Number(stock),
-        category: categoryId 
+        category: categoryId,
+        images
       }),
     });
     setName("");
@@ -37,6 +42,7 @@ export default function AdminProductsPage() {
     setPrice("");
     setStock("");
     setCategoryId("");
+    setImages([]);
     mutate();
   }
 
@@ -102,6 +108,43 @@ export default function AdminProductsPage() {
           </Select>
         </div>
         <div className="mt-4">
+          <div className="col-span-3">
+            <label className="block text-sm font-medium mb-2">Hình ảnh sản phẩm (tối đa 5)</label>
+              <div className="mb-4">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  name="images"
+                  multiple
+                  accept="image/*"
+                  onChange={e => {
+                    const files = Array.from(e.target.files || []).slice(0, 5);
+                    setSelectedFiles(files);
+                    Promise.all(files.map(file => {
+                      return new Promise<string>((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result as string);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(file);
+                      });
+                    })).then(imgs => setImages(imgs));
+                  }}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  Chọn ảnh sản phẩm
+                </button>
+                <div className="mt-2 text-sm text-gray-600">
+                  {selectedFiles.length > 0
+                    ? selectedFiles.map((file: File) => file.name).join(', ')
+                    : "Chưa chọn ảnh nào"}
+                </div>
+              </div>
+          </div>
           <Button onClick={addProduct} disabled={!name || !slug || !price || !stock}>
             Thêm sản phẩm
           </Button>

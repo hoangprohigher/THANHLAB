@@ -8,7 +8,11 @@ const ProductSchema = new Schema(
 		price: { type: Number, required: true },
 		category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
 		stock: { type: Number, default: 0 },
-		images: [{ type: String }],
+			images: {
+				type: [String],
+						 validate: [(arr: string[]) => arr.length <= 5, 'Tối đa 5 ảnh'],
+				default: []
+			},
 	},
 	{ timestamps: true }
 	);

@@ -47,6 +47,17 @@ export default function AppHeader() {
           <div className="flex items-center space-x-4">
             {session ? (
               <>
+                {/* Nút giỏ hàng cho customer */}
+                {session.user?.role !== "admin" && (
+                  <Link href="/cart">
+                    <Button variant="outline" className="flex items-center space-x-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-1">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 2.25l1.5 1.5m0 0l1.5 1.5m-1.5-1.5h15.75a.75.75 0 01.75.75v15.75a.75.75 0 01-.75.75H6.75a.75.75 0 01-.75-.75V6.75a.75.75 0 01.75-.75h12.75" />
+                      </svg>
+                      <span>Giỏ hàng</span>
+                    </Button>
+                  </Link>
+                )}
                 <Button
                   variant="ghost"
                   onClick={handleUserClick}
