@@ -3,6 +3,7 @@ import useSWR from "swr";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Package, Edit, Trash2, Plus, DollarSign } from "lucide-react";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -15,6 +16,7 @@ export default function AdminProductsPage() {
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
   const [categoryId, setCategoryId] = useState("");
+  const { data: categoriesData } = useSWR("/api/admin/categories", fetcher);
 
   async function addProduct() {
     await fetch("/api/admin/products", {
@@ -86,11 +88,18 @@ export default function AdminProductsPage() {
             value={stock}
             onChange={(e) => setStock(e.target.value)}
           />
-          <Input
-            placeholder="ID danh mục"
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-          />
+          <Select value={categoryId} onValueChange={setCategoryId}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Chọn danh mục" />
+            </SelectTrigger>
+            <SelectContent>
+              {(categoriesData?.items || []).map((cat: any) => (
+                <SelectItem key={cat._id} value={cat._id}>
+                  {cat.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div className="mt-4">
           <Button onClick={addProduct} disabled={!name || !slug || !price || !stock}>

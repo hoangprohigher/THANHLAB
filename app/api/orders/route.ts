@@ -26,7 +26,8 @@ export async function POST() {
 	const items = await Promise.all(
 		cart.items.map(async (it: any) => {
 			const prod = await Product.findById(it.product).lean();
-			return { product: it.product, quantity: it.quantity, price: prod?.price || 0 };
+			const price = (prod && typeof prod === "object" && "price" in prod) ? (prod as any).price : 0;
+			return { product: it.product, quantity: it.quantity, price };
 		})
 	);
 	const total = items.reduce((s, it) => s + it.price * it.quantity, 0);

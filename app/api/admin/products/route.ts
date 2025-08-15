@@ -13,9 +13,9 @@ export async function GET(req: Request) {
 export async function POST(req: NextRequest) {
 	if (!(await isAdminRequest(req))) return NextResponse.json({ ok: false }, { status: 401 });
 	await connectMongo();
-	const { name, slug, price, category } = await req.json();
+	const { name, slug, price, category, description, stock } = await req.json();
 	if (!name || !slug || !price || !category) return NextResponse.json({ ok: false }, { status: 400 });
-	const created = await Product.create({ name, slug, price, category });
+	const created = await Product.create({ name, slug, price, category, description, stock });
 	return NextResponse.json({ ok: true, id: created._id });
 }
 

@@ -58,20 +58,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             })}
           </div>
         </nav>
-
-        <div className="absolute bottom-6 left-6 right-6">
-          <Button 
-            variant="outline" 
-            className="w-full"
-            onClick={() => {
-              // Handle logout
-              window.location.href = "/";
-            }}
-          >
-            <LogOut className="mr-2 h-4 w-4" />
-            Đăng xuất
-          </Button>
-        </div>
       </div>
 
       {/* Main content */}

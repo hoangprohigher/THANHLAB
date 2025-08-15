@@ -11,11 +11,8 @@ const ProductSchema = new Schema(
 		images: [{ type: String }],
 	},
 	{ timestamps: true }
-);
+	);
 
-export type ProductDocument = InferSchemaType<typeof ProductSchema> & { _id: mongoose.Types.ObjectId };
-
-export const Product: Model<ProductDocument> =
-	mongoose.models.Product || mongoose.model<ProductDocument>("Product", ProductSchema);
+export const Product = mongoose.models.Product || mongoose.model("Product", ProductSchema);
 
 
