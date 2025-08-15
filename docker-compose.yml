@@ -10,6 +10,8 @@ services:
     environment:
       - PORT=6001
       - MONGODB_URI=mongodb://thanhlab-mongodb:27017/thanhlab
+      - NEXTAUTH_SECRET=dev-secret-key-for-thanhlab-2024
+      - NEXTAUTH_URL=http://localhost:6001
   thanhlab-mongodb:
     image: mongo:7
     container_name: thanhlab-mongodb
