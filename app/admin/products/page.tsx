@@ -20,6 +20,14 @@ export default function AdminProductsPage() {
   const [categoryId, setCategoryId] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+
+  // Xóa ảnh đã chọn
+  function removeImage(idx: number) {
+    const newFiles = selectedFiles.filter((_, i) => i !== idx);
+    const newImages = images.filter((_, i) => i !== idx);
+    setSelectedFiles(newFiles);
+    setImages(newImages);
+  }
   const { data: categoriesData } = useSWR("/api/admin/categories", fetcher);
 
   async function addProduct() {
@@ -110,40 +118,57 @@ export default function AdminProductsPage() {
         <div className="mt-4">
           <div className="col-span-3">
             <label className="block text-sm font-medium mb-2">Hình ảnh sản phẩm (tối đa 5)</label>
-              <div className="mb-4">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  name="images"
-                  multiple
-                  accept="image/*"
-                  onChange={e => {
-                    const files = Array.from(e.target.files || []).slice(0, 5);
+            <div className="mb-4">
+              <input
+                ref={fileInputRef}
+                type="file"
+                name="images"
+                multiple
+                accept="image/*"
+                onChange={e => {
+                  const files = Array.from(e.target.files || []).slice(0, 5);
+                  Promise.all(files.map(file => {
+                    return new Promise<string>((resolve, reject) => {
+                      const reader = new FileReader();
+                      reader.onload = () => resolve(reader.result as string);
+                      reader.onerror = reject;
+                      reader.readAsDataURL(file);
+                    });
+                  })).then(imgs => {
                     setSelectedFiles(files);
-                    Promise.all(files.map(file => {
-                      return new Promise<string>((resolve, reject) => {
-                        const reader = new FileReader();
-                        reader.onload = () => resolve(reader.result as string);
-                        reader.onerror = reject;
-                        reader.readAsDataURL(file);
-                      });
-                    })).then(imgs => setImages(imgs));
-                  }}
-                  className="hidden"
-                />
-                <button
-                  type="button"
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  Chọn ảnh sản phẩm
-                </button>
-                <div className="mt-2 text-sm text-gray-600">
-                  {selectedFiles.length > 0
-                    ? selectedFiles.map((file: File) => file.name).join(', ')
-                    : "Chưa chọn ảnh nào"}
-                </div>
+                    setImages(imgs);
+                  });
+                }}
+                className="hidden"
+              />
+              <button
+                type="button"
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                Chọn ảnh sản phẩm
+              </button>
+              {/* Preview ảnh đã chọn */}
+              <div className="mt-4 grid grid-cols-2 md:grid-cols-5 gap-3">
+                {images.length > 0 ? images.map((img, idx) => (
+                  <div key={idx} className="relative group rounded border overflow-hidden shadow-sm">
+                    <img src={img} alt={selectedFiles[idx]?.name || `Ảnh ${idx+1}`}
+                      className="w-full h-24 object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(idx)}
+                      className="absolute top-1 right-1 bg-white/80 rounded-full p-1 text-red-600 shadow hover:bg-red-100 opacity-0 group-hover:opacity-100 transition"
+                      title="Xóa ảnh"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                    <div className="absolute bottom-0 left-0 w-full bg-black/40 text-xs text-white px-1 py-0.5 truncate">{selectedFiles[idx]?.name}</div>
+                  </div>
+                )) : (
+                  <div className="col-span-5 text-gray-400 text-sm italic">Chưa chọn ảnh nào</div>
+                )}
               </div>
+            </div>
           </div>
           <Button onClick={addProduct} disabled={!name || !slug || !price || !stock}>
             Thêm sản phẩm
