@@ -48,6 +48,15 @@ export default async function ProductDetailPage({ params }: PageProps) {
           </div>
         </div>
       </div>
+      {/* Mô tả chi tiết sản phẩm */}
+        {product.detail && (
+          <div className="mt-10 p-6 bg-white rounded shadow">
+            <h2 className="text-xl font-bold mb-2">Mô tả chi tiết</h2>
+            <div className="bg-gray-50 p-4 rounded text-gray-800 whitespace-pre-line">
+              {product.detail}
+            </div>
+          </div>
+        )}
     </div>
   );
 }

@@ -21,6 +21,7 @@ export default function AdminProductsPage() {
         name: product.name,
         slug: product.slug,
         description: product.description,
+        detail: product.detail || "",
         price: product.price,
         stock: product.stock,
         category: product.category,
@@ -39,6 +40,7 @@ export default function AdminProductsPage() {
           name: editForm.name,
           slug: editForm.slug,
           description: editForm.description,
+          detail: editForm.detail,
           price: Number(editForm.price),
           stock: Number(editForm.stock),
           category: editForm.category,
@@ -50,6 +52,7 @@ export default function AdminProductsPage() {
     }
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
+  const [detail, setDetail] = useState("");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
   const [categoryId, setCategoryId] = useState("");
@@ -73,6 +76,7 @@ export default function AdminProductsPage() {
         name,
         slug,
         description,
+        detail,
         price: Number(price),
         stock: Number(stock),
         category: categoryId,
@@ -132,6 +136,13 @@ export default function AdminProductsPage() {
                   placeholder="Mô tả"
                   value={editForm.description}
                   onChange={e => setEditForm((f: any) => ({ ...f, description: e.target.value }))}
+                />
+                <textarea
+                  placeholder="Mô tả chi tiết (dài, nhiều dòng)"
+                  className="w-full border rounded p-2 mt-2"
+                  rows={6}
+                  value={editForm.detail}
+                  onChange={e => setEditForm((f: any) => ({ ...f, detail: e.target.value }))}
                 />
               </div>
               <div>
@@ -243,6 +254,13 @@ export default function AdminProductsPage() {
             placeholder="Mô tả"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+          />
+          <textarea
+            placeholder="Mô tả chi tiết (dài, nhiều dòng)"
+            className="w-full border rounded p-2 mt-2"
+            rows={6}
+            value={detail}
+            onChange={e => setDetail(e.target.value)}
           />
           <Input
             placeholder="Giá (VNĐ)"

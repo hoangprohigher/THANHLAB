@@ -1,12 +1,12 @@
 export async function PUT(req: NextRequest) {
 	if (!(await isAdminRequest(req))) return NextResponse.json({ ok: false }, { status: 401 });
 	await connectMongo();
-	const { id, name, slug, price, category, description, stock, images } = await req.json();
+		const { id, name, slug, price, category, description, detail, stock, images } = await req.json();
 	if (!id || !name || !slug || !price || !category) return NextResponse.json({ ok: false, error: "Missing required fields" }, { status: 400 });
 	const imgs = Array.isArray(images) ? images.slice(0, 5) : [];
-	await Product.updateOne({ _id: id }, {
-		$set: { name, slug, price, category, description, stock, images: imgs }
-	});
+		await Product.updateOne({ _id: id }, {
+			$set: { name, slug, price, category, description, detail, stock, images: imgs }
+		});
 	return NextResponse.json({ ok: true });
 }
 import { NextRequest, NextResponse } from "next/server";
@@ -24,10 +24,10 @@ export async function GET(req: Request) {
 export async function POST(req: NextRequest) {
 	if (!(await isAdminRequest(req))) return NextResponse.json({ ok: false }, { status: 401 });
 	await connectMongo();
-	const { name, slug, price, category, description, stock, images } = await req.json();
+		const { name, slug, price, category, description, detail, stock, images } = await req.json();
 	if (!name || !slug || !price || !category) return NextResponse.json({ ok: false }, { status: 400 });
 	const imgs = Array.isArray(images) ? images.slice(0, 5) : [];
-	const created = await Product.create({ name, slug, price, category, description, stock, images: imgs });
+		const created = await Product.create({ name, slug, price, category, description, detail, stock, images: imgs });
 	return NextResponse.json({ ok: true, id: created._id });
 }
 
