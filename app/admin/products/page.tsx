@@ -13,6 +13,37 @@ export default function AdminProductsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { data, mutate } = useSWR("/api/admin/products", fetcher);
   const [name, setName] = useState("");
+    const [editProduct, setEditProduct] = useState<any>(null);
+    const [editForm, setEditForm] = useState<any>({});
+    function openEdit(product: any) {
+      setEditProduct(product);
+      setEditForm({
+        name: product.name,
+        slug: product.slug,
+        description: product.description,
+        price: product.price,
+        stock: product.stock,
+        category: product.category,
+      });
+    }
+    function closeEdit() {
+      setEditProduct(null);
+      setEditForm({});
+    }
+    async function saveEdit() {
+      await fetch(`/api/admin/products?id=${editProduct._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...editForm,
+          images: editProduct.images,
+          stock: editForm.stock,
+          category: editForm.category,
+        }),
+      });
+      mutate();
+      closeEdit();
+    }
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -34,14 +65,14 @@ export default function AdminProductsPage() {
     await fetch("/api/admin/products", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        name, 
-        slug, 
-        description, 
-        price: Number(price), 
+      body: JSON.stringify({
+        name,
+        slug,
+        description,
+        price: Number(price),
         stock: Number(stock),
         category: categoryId,
-        images
+        images,
       }),
     });
     setName("");
@@ -51,6 +82,7 @@ export default function AdminProductsPage() {
     setStock("");
     setCategoryId("");
     setImages([]);
+    setSelectedFiles([]);
     mutate();
   }
 
@@ -61,6 +93,124 @@ export default function AdminProductsPage() {
 
   return (
     <div className="space-y-6">
+      {/* Modal chỉnh sửa sản phẩm */}
+      {editProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+              onClick={closeEdit}
+              title="Đóng"
+            >
+              &times;
+            </button>
+            <h3 className="text-lg font-semibold mb-4">Chỉnh sửa sản phẩm</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium mb-1">Tên sản phẩm</label>
+                <Input
+                  placeholder="Tên sản phẩm"
+                  value={editForm.name}
+                  onChange={e => setEditForm((f: any) => ({ ...f, name: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Slug</label>
+                <Input
+                  placeholder="Slug"
+                  value={editForm.slug}
+                  onChange={e => setEditForm((f: any) => ({ ...f, slug: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Mô tả</label>
+                <Input
+                  placeholder="Mô tả"
+                  value={editForm.description}
+                  onChange={e => setEditForm((f: any) => ({ ...f, description: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Giá (VNĐ)</label>
+                <Input
+                  placeholder="Giá (VNĐ)"
+                  type="number"
+                  value={editForm.price}
+                  onChange={e => setEditForm((f: any) => ({ ...f, price: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Số lượng tồn kho</label>
+                <Input
+                  placeholder="Số lượng tồn kho"
+                  type="number"
+                  value={editForm.stock}
+                  onChange={e => setEditForm((f: any) => ({ ...f, stock: e.target.value }))}
+                />
+              </div>
+              <div>
+                <div className="mb-2 grid grid-cols-2 md:grid-cols-5 gap-2">
+                  {(editProduct.images || []).map((img: string, idx: number) => (
+                    <div key={idx} className="relative group rounded border overflow-hidden shadow-sm">
+                      <img src={img} alt={`Ảnh ${idx+1}`}
+                        className="w-full h-16 object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newImages = editProduct.images.filter((_: any, i: number) => i !== idx);
+                          setEditProduct({ ...editProduct, images: newImages });
+                        }}
+                        className="absolute top-1 right-1 bg-white/80 rounded-full p-1 text-red-600 shadow hover:bg-red-100 opacity-0 group-hover:opacity-100 transition"
+                        title="Xóa ảnh"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                  {(!editProduct.images || editProduct.images.length === 0) && (
+                    <div className="col-span-5 text-gray-400 text-sm italic">Chưa có ảnh nào</div>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  className="hidden"
+                  id="edit-image-upload"
+                  onChange={e => {
+                    const files = Array.from(e.target.files || []);
+                    Promise.all(files.map(file => {
+                      return new Promise<string>((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result as string);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(file);
+                      });
+                    })).then(imgs => {
+                      setEditProduct({
+                        ...editProduct,
+                        images: [...(editProduct.images || []), ...imgs].slice(0, 5)
+                      });
+                    });
+                  }}
+                />
+                <button
+                  type="button"
+                  className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none mt-1"
+                  onClick={() => document.getElementById('edit-image-upload')?.click()}
+                >
+                  Thêm ảnh mới
+                </button>
+              </div>
+              <div className="mt-6 flex gap-2 justify-end">
+                <Button variant="outline" onClick={closeEdit}>Hủy</Button>
+                <Button onClick={saveEdit}>Lưu thay đổi</Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Các phần tử JSX tiếp theo nằm ngoài modal */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">Quản lý sản phẩm</h2>
         <div className="text-sm text-gray-500">
@@ -68,7 +218,7 @@ export default function AdminProductsPage() {
         </div>
       </div>
 
-      {/* Add Product Form */}
+  {/* Add Product Form */}
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
           <Plus className="h-5 w-5 mr-2 text-blue-600" />
@@ -204,6 +354,15 @@ export default function AdminProductsPage() {
                   </div>
                   <div className="text-sm text-gray-500">Tồn kho: {product.stock}</div>
                 </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-blue-600 hover:text-blue-700"
+                  onClick={() => openEdit(product)}
+                >
+                  <Edit className="h-4 w-4 mr-1" />
+                  Chỉnh sửa
+                </Button>
                 <Button
                   size="sm"
                   variant="outline"
