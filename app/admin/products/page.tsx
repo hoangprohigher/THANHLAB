@@ -126,8 +126,10 @@ export default function AdminProductsPage() {
                 multiple
                 accept="image/*"
                 onChange={e => {
-                  const files = Array.from(e.target.files || []).slice(0, 5);
-                  Promise.all(files.map(file => {
+                  const files = Array.from(e.target.files || []);
+                  // Cộng dồn file mới vào file cũ
+                  const newFiles = [...selectedFiles, ...files].slice(0, 5);
+                  Promise.all(newFiles.map(file => {
                     return new Promise<string>((resolve, reject) => {
                       const reader = new FileReader();
                       reader.onload = () => resolve(reader.result as string);
@@ -135,7 +137,7 @@ export default function AdminProductsPage() {
                       reader.readAsDataURL(file);
                     });
                   })).then(imgs => {
-                    setSelectedFiles(files);
+                    setSelectedFiles(newFiles);
                     setImages(imgs);
                   });
                 }}

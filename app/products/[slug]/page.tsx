@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { ProductGallery } from "@/components/product-gallery";
 import { connectMongo } from "@/lib/mongodb";
 import { Product } from "@/lib/models/Product";
 import { AddToCartButton } from "@/components/cart-actions";
@@ -29,12 +30,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
         <div>
-          {/* Hiển thị ảnh sản phẩm */}
-          <div className="flex gap-2 flex-wrap">
-            {(product.images || []).map((img: string, idx: number) => (
-              <img key={idx} src={img} alt={`product-img-${idx}`} className="h-40 w-40 object-cover rounded border" />
-            ))}
-          </div>
+          {/* Gallery nhiều ảnh, chọn ảnh, zoom */}
+          <ProductGallery images={product.images || []} />
         </div>
         <div>
           <h1 className="text-2xl font-bold mb-2">{product.name}</h1>
