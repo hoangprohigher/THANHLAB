@@ -6,6 +6,7 @@ import { useState } from "react";
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 export default function AdminOrdersPage() {
+  const [detailOrder, setDetailOrder] = useState<any>(null);
   const [shippingInfo, setShippingInfo] = useState<{[id: string]: {trackingCode: string, shippingProvider: string}}>({});
 
   async function updateShippingInfo(id: string) {
@@ -53,6 +54,38 @@ export default function AdminOrdersPage() {
           )}
           {processingOrders.map((order: any) => (
             <div key={String(order._id)} className="px-6 py-4 flex items-center justify-between">
+              {/* Popup chi tiết đơn hàng */}
+              {detailOrder && detailOrder._id === order._id && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                  <div className="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
+                    <button
+                      className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                      onClick={() => setDetailOrder(null)}
+                      title="Đóng"
+                    >
+                      &times;
+                    </button>
+                    <h3 className="text-lg font-semibold mb-4">Chi tiết đơn hàng</h3>
+                    <div className="space-y-2">
+                      <div><b>Họ tên người nhận:</b> {order.recipientName || "-"}</div>
+                      <div><b>Số điện thoại:</b> {order.recipientPhone || "-"}</div>
+                      <div><b>Địa chỉ:</b> {order.recipientAddress || "-"}</div>
+                      <div><b>Mã vận đơn:</b> {order.trackingCode || "-"}</div>
+                      <div><b>Nhà vận chuyển:</b> {order.shippingProvider || "-"}</div>
+                      <div><b>Sản phẩm:</b>
+                        <ul className="ml-4 list-disc">
+                          {(order.items || []).map((item: any, idx: number) => (
+                            <li key={idx}>
+                              {item.product?.name || "Sản phẩm"} x {item.quantity}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div><b>Tổng tiền:</b> {order.total?.toLocaleString()} đ</div>
+                    </div>
+                  </div>
+                </div>
+              )}
               <div className="flex items-center space-x-4">
                 <div className="p-2 bg-blue-100 rounded-full">
                   <ShoppingCart className="h-5 w-5 text-blue-600" />
@@ -67,6 +100,12 @@ export default function AdminOrdersPage() {
                 </div>
               </div>
               <div className="text-right space-y-2">
+                <button
+                  className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 text-sm mb-2"
+                  onClick={() => setDetailOrder(order)}
+                >
+                  Chi tiết
+                </button>
                 <div className="font-semibold text-green-600 flex items-center">
                   <DollarSign className="h-4 w-4 mr-1" />
                   {order.total?.toLocaleString()} đ
@@ -140,6 +179,38 @@ export default function AdminOrdersPage() {
           )}
           {completedOrders.map((order: any) => (
             <div key={String(order._id)} className="px-6 py-4 flex items-center justify-between">
+              {/* Popup chi tiết đơn hàng */}
+              {detailOrder && detailOrder._id === order._id && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                  <div className="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
+                    <button
+                      className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                      onClick={() => setDetailOrder(null)}
+                      title="Đóng"
+                    >
+                      &times;
+                    </button>
+                    <h3 className="text-lg font-semibold mb-4">Chi tiết đơn hàng</h3>
+                    <div className="space-y-2">
+                      <div><b>Họ tên người nhận:</b> {order.recipientName || "-"}</div>
+                      <div><b>Số điện thoại:</b> {order.recipientPhone || "-"}</div>
+                      <div><b>Địa chỉ:</b> {order.recipientAddress || "-"}</div>
+                      <div><b>Mã vận đơn:</b> {order.trackingCode || "-"}</div>
+                      <div><b>Nhà vận chuyển:</b> {order.shippingProvider || "-"}</div>
+                      <div><b>Sản phẩm:</b>
+                        <ul className="ml-4 list-disc">
+                          {(order.items || []).map((item: any, idx: number) => (
+                            <li key={idx}>
+                              {item.product?.name || "Sản phẩm"} x {item.quantity}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div><b>Tổng tiền:</b> {order.total?.toLocaleString()} đ</div>
+                    </div>
+                  </div>
+                </div>
+              )}
               <div className="flex items-center space-x-4">
                 <div className="p-2 bg-green-100 rounded-full">
                   <ShoppingCart className="h-5 w-5 text-green-600" />
@@ -154,6 +225,12 @@ export default function AdminOrdersPage() {
                 </div>
               </div>
               <div className="text-right">
+                <button
+                  className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 text-sm mb-2"
+                  onClick={() => setDetailOrder(order)}
+                >
+                  Chi tiết
+                </button>
                 <div className="font-semibold text-green-600 flex items-center">
                   <DollarSign className="h-4 w-4 mr-1" />
                   {order.total?.toLocaleString()} đ
