@@ -11,7 +11,14 @@ const OrderSchema = new Schema(
 			},
 		],
 		total: { type: Number, required: true },
-		status: { type: String, enum: ["pending", "paid", "shipped", "completed", "canceled"], default: "pending" },
+		status: { type: String, enum: [
+			"pending",         // Đơn mới
+			"confirmed",       // Xác nhận đơn
+			"waiting",         // Chờ gửi hàng
+			"shipping",        // Đang giao
+			"completed",       // Giao thành công
+			"canceled"         // Đã hủy
+		], default: "pending" },
 	},
 	{ timestamps: true }
 );
