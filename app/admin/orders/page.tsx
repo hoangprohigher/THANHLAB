@@ -1,10 +1,22 @@
 "use client";
 import useSWR from "swr";
 import { ShoppingCart, Package, DollarSign } from "lucide-react";
+import { useState } from "react";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 export default function AdminOrdersPage() {
+  const [shippingInfo, setShippingInfo] = useState<{[id: string]: {trackingCode: string, shippingProvider: string}}>({});
+
+  async function updateShippingInfo(id: string) {
+    const info = shippingInfo[id] || {};
+    await fetch("/api/admin/orders", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, status: "shipping", trackingCode: info.trackingCode, shippingProvider: info.shippingProvider }),
+    });
+    location.reload();
+  }
   const { data } = useSWR("/api/admin/orders", fetcher);
   
   // Tách đơn hàng thành 2 nhóm
@@ -67,6 +79,7 @@ export default function AdminOrdersPage() {
                   className="mt-2 border rounded px-2 py-1 text-sm"
                   value={order.status}
                   onChange={e => updateOrderStatus(order._id, e.target.value)}
+                  title="Cập nhật trạng thái đơn hàng"
                 >
                   <option value="pending">Đơn mới</option>
                   <option value="confirmed">Xác nhận đơn</option>
@@ -75,6 +88,41 @@ export default function AdminOrdersPage() {
                   <option value="completed">Giao thành công</option>
                   <option value="canceled">Đã hủy</option>
                 </select>
+                {/* Nếu trạng thái là 'shipping', hiển thị form nhập thông tin vận chuyển */}
+                {order.status === "shipping" && (
+                  <div className="mt-2 p-2 border rounded bg-gray-50">
+                    <input
+                      className="mb-2 w-full border rounded px-2 py-1 text-sm"
+                      placeholder="Mã vận đơn"
+                      value={shippingInfo[order._id]?.trackingCode || order.trackingCode || ""}
+                      onChange={e => setShippingInfo((info: any) => ({
+                        ...info,
+                        [order._id]: {
+                          ...info[order._id],
+                          trackingCode: e.target.value
+                        }
+                      }))}
+                    />
+                    <input
+                      className="mb-2 w-full border rounded px-2 py-1 text-sm"
+                      placeholder="Nhà vận chuyển"
+                      value={shippingInfo[order._id]?.shippingProvider || order.shippingProvider || ""}
+                      onChange={e => setShippingInfo((info: any) => ({
+                        ...info,
+                        [order._id]: {
+                          ...info[order._id],
+                          shippingProvider: e.target.value
+                        }
+                      }))}
+                    />
+                    <button
+                      className="px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                      onClick={() => updateShippingInfo(order._id)}
+                    >
+                      Cập nhật thông tin vận chuyển
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ))}

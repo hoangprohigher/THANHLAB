@@ -19,6 +19,8 @@ const OrderSchema = new Schema(
 			"completed",       // Giao thành công
 			"canceled"         // Đã hủy
 		], default: "pending" },
+		trackingCode: { type: String },
+		shippingProvider: { type: String },
 	},
 	{ timestamps: true }
 );
