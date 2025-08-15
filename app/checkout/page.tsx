@@ -21,9 +21,34 @@ export default function CheckoutPage() {
     setMessage(`Đặt hàng thành công. Mã đơn: ${data.orderId}`);
   }
 
+  // Lấy sản phẩm đã chọn từ localStorage (giả lập)
+  const [cart, setCart] = useState<any[]>([]);
+  useState(() => {
+    if (typeof window !== "undefined") {
+      const c = localStorage.getItem("cart");
+      if (c) setCart(JSON.parse(c));
+    }
+  });
+
   return (
     <div className="max-w-lg space-y-6">
       <h1 className="text-xl font-semibold">Thanh toán</h1>
+      {/* Hiển thị chi tiết sản phẩm đã chọn */}
+      <div className="bg-white rounded shadow p-4 mb-4">
+        <h2 className="text-lg font-bold mb-2">Sản phẩm đã chọn</h2>
+        {cart.length === 0 ? (
+          <div className="text-gray-400 italic">Chưa có sản phẩm nào trong giỏ hàng</div>
+        ) : (
+          <ul className="space-y-2">
+            {cart.map((item, idx) => (
+              <li key={idx} className="flex justify-between items-center">
+                <span>{item.product?.name || "Sản phẩm"} x {item.quantity}</span>
+                <span className="text-red-600">{(item.product?.price * item.quantity)?.toLocaleString()} đ</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
       <div className="space-y-3">
         <div className="space-y-1">
           <Label>Họ tên</Label>
@@ -38,7 +63,7 @@ export default function CheckoutPage() {
           <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Số nhà, đường, quận, TP" />
         </div>
       </div>
-      <Button onClick={placeOrder}>Đặt hàng</Button>
+      <Button onClick={placeOrder}>Tạo đơn hàng</Button>
       {message && <p className="text-sm">{message}</p>}
     </div>
   );
