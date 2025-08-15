@@ -31,14 +31,18 @@ export default function AdminProductsPage() {
       setEditForm({});
     }
     async function saveEdit() {
-      await fetch(`/api/admin/products?id=${editProduct._id}`, {
+      await fetch(`/api/admin/products`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...editForm,
-          images: editProduct.images,
-          stock: editForm.stock,
+          id: editProduct._id,
+          name: editForm.name,
+          slug: editForm.slug,
+          description: editForm.description,
+          price: Number(editForm.price),
+          stock: Number(editForm.stock),
           category: editForm.category,
+          images: editProduct.images,
         }),
       });
       mutate();
