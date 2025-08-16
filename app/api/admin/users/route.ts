@@ -1,3 +1,16 @@
+import bcrypt from "bcryptjs";
+export async function POST(req: NextRequest) {
+  if (!(await isAdminRequest(req))) return NextResponse.json({ ok: false }, { status: 401 });
+  await connectMongo();
+  const { name, email, role } = await req.json();
+  if (!name || !email || !role) return NextResponse.json({ ok: false, error: "Missing fields" }, { status: 400 });
+  const exists = await User.findOne({ email });
+  if (exists) return NextResponse.json({ ok: false, error: "Email already exists" }, { status: 400 });
+  const password = "123456";
+  const passwordHash = await bcrypt.hash(password, 10);
+  await User.create({ name, email, role, passwordHash });
+  return NextResponse.json({ ok: true });
+}
 import { NextRequest, NextResponse } from "next/server";
 import { connectMongo } from "@/lib/mongodb";
 import { User } from "@/lib/models/User";
