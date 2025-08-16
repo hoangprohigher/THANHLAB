@@ -30,8 +30,8 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <AppSessionProvider>
           <AppHeader />
-          <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
-          <footer className="w-full border-t py-6 text-center text-sm text-muted-foreground">
+          <main className="mx-auto max-w-6xl px-2 sm:px-4 py-4 sm:py-8 w-full">{children}</main>
+          <footer className="w-full border-t py-4 sm:py-6 text-center text-xs sm:text-sm text-muted-foreground">
             © {new Date().getFullYear()} THANHLAB. All rights reserved.
           </footer>
         </AppSessionProvider>
