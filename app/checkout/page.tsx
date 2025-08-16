@@ -9,6 +9,7 @@ export default function CheckoutPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
+  const [phone, setPhone] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [cart, setCart] = useState<any[]>([]);
 
@@ -47,6 +48,7 @@ export default function CheckoutPage() {
         name,
         email,
         address,
+        phone,
         items: cart.map((item: any) => ({
           product: item.product._id,
           quantity: item.quantity,
@@ -116,6 +118,10 @@ export default function CheckoutPage() {
         <div className="space-y-1">
           <Label>Địa chỉ</Label>
           <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Số nhà, đường, quận, TP" />
+        </div>
+        <div className="space-y-1">
+          <Label>Số điện thoại</Label>
+          <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Số điện thoại" />
         </div>
       </div>
       <Button onClick={placeOrder} disabled={cart.length === 0}>Tạo đơn hàng</Button>

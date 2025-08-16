@@ -21,6 +21,10 @@ const OrderSchema = new Schema(
 		], default: "pending" },
 		trackingCode: { type: String },
 		shippingProvider: { type: String },
+		recipientName: { type: String },
+		recipientPhone: { type: String },
+		recipientAddress: { type: String },
+		recipientEmail: { type: String },
 	},
 	{ timestamps: true }
 );

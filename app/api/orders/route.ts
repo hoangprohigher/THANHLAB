@@ -22,10 +22,19 @@ export async function POST(req: Request) {
 	const user = await getDemoUser();
 	if (!user) return NextResponse.json({ ok: false }, { status: 400 });
 	const body = await req.json();
-	const { name, email, address, items } = body;
+	const { name, email, address, phone, items } = body;
 	if (!items || !items.length) return NextResponse.json({ ok: false, error: "Chưa chọn sản phẩm" }, { status: 400 });
 	const total = items.reduce((s: number, it: any) => s + it.price * it.quantity, 0);
-	const order = await Order.create({ user: user._id, items, total, status: "pending", recipientName: name, recipientAddress: address });
+	const order = await Order.create({
+		user: user._id,
+		items,
+		total,
+		status: "pending",
+		recipientName: name,
+		recipientPhone: phone,
+		recipientAddress: address,
+		recipientEmail: email
+	});
 	// Optionally: xóa các sản phẩm đã đặt khỏi giỏ hàng
 	return NextResponse.json({ ok: true, orderId: order._id });
 }

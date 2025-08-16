@@ -67,21 +67,91 @@ export default function AdminOrdersPage() {
                     </button>
                     <h3 className="text-lg font-semibold mb-4">Chi tiết đơn hàng</h3>
                     <div className="space-y-2">
-                      <div><b>Họ tên người nhận:</b> {order.recipientName || "-"}</div>
-                      <div><b>Số điện thoại:</b> {order.recipientPhone || "-"}</div>
-                      <div><b>Địa chỉ:</b> {order.recipientAddress || "-"}</div>
-                      <div><b>Mã vận đơn:</b> {order.trackingCode || "-"}</div>
-                      <div><b>Nhà vận chuyển:</b> {order.shippingProvider || "-"}</div>
+                      <div>
+                        <b>Họ tên người nhận:</b>
+                        <input
+                          className="border rounded px-2 py-1 ml-2"
+                          value={detailOrder.recipientName || ""}
+                          onChange={e => setDetailOrder((o: any) => ({ ...o, recipientName: e.target.value }))}
+                          placeholder="Nhập họ tên người nhận"
+                        />
+                      </div>
+                      <div>
+                        <b>Số điện thoại:</b>
+                        <input
+                          className="border rounded px-2 py-1 ml-2"
+                          value={detailOrder.recipientPhone || ""}
+                          onChange={e => setDetailOrder((o: any) => ({ ...o, recipientPhone: e.target.value }))}
+                          placeholder="Nhập số điện thoại"
+                        />
+                      </div>
+                      <div>
+                        <b>Địa chỉ:</b>
+                        <input
+                          className="border rounded px-2 py-1 ml-2"
+                          value={detailOrder.recipientAddress || ""}
+                          onChange={e => setDetailOrder((o: any) => ({ ...o, recipientAddress: e.target.value }))}
+                          placeholder="Nhập địa chỉ"
+                        />
+                      </div>
+                      <div>
+                        <b>Mã vận đơn:</b>
+                        <input
+                          className="border rounded px-2 py-1 ml-2"
+                          value={detailOrder.trackingCode || ""}
+                          onChange={e => setDetailOrder((o: any) => ({ ...o, trackingCode: e.target.value }))}
+                          placeholder="Nhập mã vận đơn"
+                        />
+                      </div>
+                      <div>
+                        <b>Nhà vận chuyển:</b>
+                        <input
+                          className="border rounded px-2 py-1 ml-2"
+                          value={detailOrder.shippingProvider || ""}
+                          onChange={e => setDetailOrder((o: any) => ({ ...o, shippingProvider: e.target.value }))}
+                          placeholder="Nhập tên nhà vận chuyển"
+                        />
+                      </div>
                       <div><b>Sản phẩm:</b>
                         <ul className="ml-4 list-disc">
-                          {(order.items || []).map((item: any, idx: number) => (
+                          {(detailOrder.items || []).map((item: any, idx: number) => (
                             <li key={idx}>
-                              {item.product?.name || "Sản phẩm"} x {item.quantity}
+                              {item.product?.name || item.productName || "Sản phẩm"} x {item.quantity}
                             </li>
                           ))}
                         </ul>
                       </div>
-                      <div><b>Tổng tiền:</b> {order.total?.toLocaleString()} đ</div>
+                      <div><b>Tổng tiền:</b> {detailOrder.total?.toLocaleString()} đ</div>
+                    </div>
+                    <div className="flex gap-2 justify-end mt-4">
+                      <button
+                        className="px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                        onClick={async () => {
+                          await fetch(`/api/admin/orders`, {
+                            method: "PUT",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              id: detailOrder._id,
+                              recipientName: detailOrder.recipientName,
+                              recipientPhone: detailOrder.recipientPhone,
+                              recipientAddress: detailOrder.recipientAddress,
+                              trackingCode: detailOrder.trackingCode,
+                              shippingProvider: detailOrder.shippingProvider,
+                              status: order.status
+                            })
+                          });
+                          setDetailOrder(null);
+                          location.reload();
+                        }}
+                      >
+                        Lưu thay đổi
+                      </button>
+                      <button
+                        className="px-4 py-1 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
+                        onClick={() => setDetailOrder(null)}
+                      >
+                        Đóng
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -192,21 +262,91 @@ export default function AdminOrdersPage() {
                     </button>
                     <h3 className="text-lg font-semibold mb-4">Chi tiết đơn hàng</h3>
                     <div className="space-y-2">
-                      <div><b>Họ tên người nhận:</b> {order.recipientName || "-"}</div>
-                      <div><b>Số điện thoại:</b> {order.recipientPhone || "-"}</div>
-                      <div><b>Địa chỉ:</b> {order.recipientAddress || "-"}</div>
-                      <div><b>Mã vận đơn:</b> {order.trackingCode || "-"}</div>
-                      <div><b>Nhà vận chuyển:</b> {order.shippingProvider || "-"}</div>
+                      <div>
+                        <b>Họ tên người nhận:</b>
+            <input
+              className="border rounded px-2 py-1 ml-2"
+              value={detailOrder.recipientName || ""}
+              onChange={e => setDetailOrder((o: any) => ({ ...o, recipientName: e.target.value }))}
+              placeholder="Nhập họ tên người nhận"
+            />
+                      </div>
+                      <div>
+                        <b>Số điện thoại:</b>
+            <input
+              className="border rounded px-2 py-1 ml-2"
+              value={detailOrder.recipientPhone || ""}
+              onChange={e => setDetailOrder((o: any) => ({ ...o, recipientPhone: e.target.value }))}
+              placeholder="Nhập số điện thoại"
+            />
+                      </div>
+                      <div>
+                        <b>Địa chỉ:</b>
+            <input
+              className="border rounded px-2 py-1 ml-2"
+              value={detailOrder.recipientAddress || ""}
+              onChange={e => setDetailOrder((o: any) => ({ ...o, recipientAddress: e.target.value }))}
+              placeholder="Nhập địa chỉ"
+            />
+                      </div>
+                      <div>
+                        <b>Mã vận đơn:</b>
+            <input
+              className="border rounded px-2 py-1 ml-2"
+              value={detailOrder.trackingCode || ""}
+              onChange={e => setDetailOrder((o: any) => ({ ...o, trackingCode: e.target.value }))}
+              placeholder="Nhập mã vận đơn"
+            />
+                      </div>
+                      <div>
+                        <b>Nhà vận chuyển:</b>
+            <input
+              className="border rounded px-2 py-1 ml-2"
+              value={detailOrder.shippingProvider || ""}
+              onChange={e => setDetailOrder((o: any) => ({ ...o, shippingProvider: e.target.value }))}
+              placeholder="Nhập tên nhà vận chuyển"
+            />
+                      </div>
                       <div><b>Sản phẩm:</b>
                         <ul className="ml-4 list-disc">
-                          {(order.items || []).map((item: any, idx: number) => (
+                          {(detailOrder.items || []).map((item: any, idx: number) => (
                             <li key={idx}>
-                              {item.product?.name || "Sản phẩm"} x {item.quantity}
+                              {item.product?.name || item.productName || "Sản phẩm"} x {item.quantity}
                             </li>
                           ))}
                         </ul>
                       </div>
-                      <div><b>Tổng tiền:</b> {order.total?.toLocaleString()} đ</div>
+                      <div><b>Tổng tiền:</b> {detailOrder.total?.toLocaleString()} đ</div>
+                    </div>
+                    <div className="flex gap-2 justify-end mt-4">
+                      <button
+                        className="px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                        onClick={async () => {
+                          await fetch(`/api/admin/orders`, {
+                            method: "PUT",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              id: detailOrder._id,
+                              recipientName: detailOrder.recipientName,
+                              recipientPhone: detailOrder.recipientPhone,
+                              recipientAddress: detailOrder.recipientAddress,
+                              trackingCode: detailOrder.trackingCode,
+                              shippingProvider: detailOrder.shippingProvider,
+                              status: order.status
+                            })
+                          });
+                          setDetailOrder(null);
+                          location.reload();
+                        }}
+                      >
+                        Lưu thay đổi
+                      </button>
+                      <button
+                        className="px-4 py-1 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
+                        onClick={() => setDetailOrder(null)}
+                      >
+                        Đóng
+                      </button>
                     </div>
                   </div>
                 </div>

@@ -7,7 +7,7 @@ import { Order } from "@/lib/models/Order";
 export default async function OrdersPage() {
 	await connectMongo();
 	const user = await User.findOne({ email: "customer@thanhlab.vn" });
-	const orders = user ? await Order.find({ user: user._id }).lean() : [];
+	const orders = user ? await Order.find({ user: user._id }).populate('items.product').lean() : [];
 	return (
 		<div className="space-y-6">
 			<h1 className="text-xl font-semibold">Đơn hàng</h1>
@@ -21,12 +21,25 @@ export default async function OrdersPage() {
 								<div className="font-medium">#{String(o._id).slice(-6)}</div>
 								<div className="text-sm text-muted-foreground">{o.items.length} sản phẩm</div>
 								<div className="text-xs text-gray-500 capitalize">Trạng thái: {o.status}</div>
-								<ul className="ml-4 list-disc text-sm mt-2">
-									{o.items.map((item: any, idx: number) => (
-										<li key={idx}>
-											{item.product?.name || "Sản phẩm"} x {item.quantity} - {(item.price * item.quantity).toLocaleString()} đ
-										</li>
-									))}
+								<div className="text-xs text-gray-500">Họ tên: {o.recipientName || '-'}</div>
+								<div className="text-xs text-gray-500">Số điện thoại: {o.recipientPhone || '-'}</div>
+								<div className="text-xs text-gray-500">Địa chỉ: {o.recipientAddress || '-'}</div>
+								<div className="text-xs text-gray-500">Mã vận đơn: {o.trackingCode || '-'}</div>
+								<div className="text-xs text-gray-500">Nhà vận chuyển: {o.shippingProvider || '-'}</div>
+								<ul className="ml-4 list-disc">
+									{o.items.map((item: any, idx: number) => {
+										let productName = "Không rõ tên sản phẩm";
+										if (item.product && typeof item.product === "object" && item.product.name) {
+											productName = item.product.name;
+										} else if (item.productName) {
+											productName = item.productName;
+										}
+										return (
+											<li key={idx}>
+												{productName} x {item.quantity} - {item.price?.toLocaleString()} đ
+											</li>
+										);
+									})}
 								</ul>
 								<div className="text-xs text-gray-500 mt-2">Ngày tạo: {new Date(o.createdAt).toLocaleDateString("vi-VN")}</div>
 							</div>

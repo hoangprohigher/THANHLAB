@@ -16,11 +16,15 @@ export async function PUT(req: Request) {
   if (!(await isAdminRequest(req as any))) return NextResponse.json({ ok: false }, { status: 401 });
   await connectMongo();
   const body = await req.json();
-  const { id, status, trackingCode, shippingProvider } = body;
+  const { id, status, trackingCode, shippingProvider, recipientName, recipientPhone, recipientAddress, recipientEmail } = body;
   if (!id || !status) return NextResponse.json({ ok: false, error: "Thiếu id hoặc status" }, { status: 400 });
   const order = await Order.findById(id);
   if (!order) return NextResponse.json({ ok: false, error: "Không tìm thấy đơn hàng" }, { status: 404 });
   order.status = status;
+  if (recipientName !== undefined) order.recipientName = recipientName;
+  if (recipientPhone !== undefined) order.recipientPhone = recipientPhone;
+  if (recipientAddress !== undefined) order.recipientAddress = recipientAddress;
+  if (recipientEmail !== undefined) order.recipientEmail = recipientEmail;
   if (status === "shipping") {
     order.trackingCode = trackingCode || "";
     order.shippingProvider = shippingProvider || "";
