@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { connectMongo } from "@/lib/mongodb";
 import { Post } from "@/lib/models/Post";
+import { PostBlockViewer } from "@/components/post-block-viewer";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -25,7 +26,6 @@ export default async function PostDetailPage({ params }: PageProps) {
 			>
 				← Quay lại danh sách bài viết
 			</Link>
-
 			<article className="prose prose-lg max-w-none">
 				<header className="mb-8">
 					<h1 className="text-3xl font-bold text-gray-900 mb-4">
@@ -54,17 +54,8 @@ export default async function PostDetailPage({ params }: PageProps) {
 					</div>
 				</header>
 
-				<div className="text-gray-700 leading-relaxed">
-					{post.content.split('\n').map((paragraph: string, index: number) => (
-						paragraph.trim() ? (
-							<p key={index} className="mb-4">
-								{paragraph}
-							</p>
-						) : (
-							<br key={index} />
-						)
-					))}
-				</div>
+				{/* Hiển thị các block của bài viết */}
+				<PostBlockViewer blocks={post.content ? JSON.parse(post.content) : []} />
 			</article>
 
 			<div className="border-t pt-6">

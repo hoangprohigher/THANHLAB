@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FileText, Edit, Trash2, Plus, Tag } from "lucide-react";
+import { PostBlockEditor, PostBlock } from "@/components/post-block-editor";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -13,18 +14,20 @@ export default function AdminPostsPage() {
   const [slug, setSlug] = useState("");
   const [content, setContent] = useState("");
   const [tags, setTags] = useState("");
+  const [blocks, setBlocks] = useState<PostBlock[]>([]);
 
   async function addPost() {
     const tagsArray = tags.split(",").map(tag => tag.trim()).filter(tag => tag);
     await fetch("/api/admin/posts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, slug, content, tags: tagsArray }),
+      body: JSON.stringify({ title, slug, content: JSON.stringify(blocks), tags: tagsArray }),
     });
     setTitle("");
     setSlug("");
     setContent("");
     setTags("");
+    setBlocks([]);
     mutate();
   }
 
@@ -68,14 +71,9 @@ export default function AdminPostsPage() {
           />
         </div>
         <div className="mb-4">
-          <textarea
-            className="w-full border rounded px-3 py-2 min-h-[120px]"
-            placeholder="Nội dung bài viết..."
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-          />
+          <PostBlockEditor value={blocks} onChange={setBlocks} />
         </div>
-        <Button onClick={addPost} disabled={!title || !slug || !content}>
+        <Button onClick={addPost} disabled={!title || !slug || blocks.length === 0}>
           Thêm bài viết
         </Button>
       </div>
