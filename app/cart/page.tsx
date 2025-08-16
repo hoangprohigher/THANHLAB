@@ -18,7 +18,27 @@ export default function CartPage() {
 	}
 	useEffect(() => {
 		fetchCart();
+		// Tự động tích chọn sản phẩm vừa mua ngay
+		const buyNowProductId = localStorage.getItem("buyNowProductId");
+		if (buyNowProductId && cart?.cart?.items) {
+			const idx = cart.cart.items.findIndex((item: any) => String(item.product?._id) === buyNowProductId);
+			if (idx !== -1) {
+				setSelected([idx]);
+				localStorage.removeItem("buyNowProductId");
+			}
+		}
 	}, []);
+
+	useEffect(() => {
+		const buyNowProductId = localStorage.getItem("buyNowProductId");
+		if (buyNowProductId && cart?.cart?.items) {
+			const idx = cart.cart.items.findIndex((item: any) => String(item.product?._id) === buyNowProductId);
+			if (idx !== -1) {
+				setSelected([idx]);
+				localStorage.removeItem("buyNowProductId");
+			}
+		}
+	}, [cart]);
 	useEffect(() => {
 		function handleStorageChange(e: StorageEvent) {
 			if (e.key === "cart") {

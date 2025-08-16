@@ -5,6 +5,7 @@ import { ProductGallery } from "@/components/product-gallery";
 import { connectMongo } from "@/lib/mongodb";
 import { Product } from "@/lib/models/Product";
 import { AddToCartButton } from "@/components/cart-actions";
+import { BuyNowButton } from "@/components/buy-now-button";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -41,10 +42,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
           <div className="flex gap-4">
             {/* Nút thêm vào giỏ hàng dùng client component */}
             <AddToCartButton productId={product._id} />
-            <form action="/checkout" method="POST">
-              <input type="hidden" name="productId" value={product._id} />
-              <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Mua ngay</button>
-            </form>
+            <BuyNowButton productId={product._id} />
           </div>
         </div>
       </div>
