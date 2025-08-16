@@ -123,9 +123,19 @@ export default function CartPage() {
 								Xóa sản phẩm đã chọn
 							</button>
 						</div>
-						<div className="text-lg font-bold">Tổng cộng: <span className="text-red-600">{total.toLocaleString()} đ</span></div>
-						<a href="/checkout">
-							<button type="button" className="bg-orange-500 text-white px-6 py-2 rounded font-semibold hover:bg-orange-600">
+						<div className="text-lg font-bold">
+							Tổng cộng: <span className="text-red-600">{total.toLocaleString()} đ</span>
+						</div>
+						<a href="/checkout" onClick={() => {
+							if (typeof window !== "undefined") {
+								localStorage.setItem("selectedCartItems", JSON.stringify(selected));
+							}
+						}}>
+							<button
+								type="button"
+								className="bg-orange-500 text-white px-6 py-2 rounded font-semibold hover:bg-orange-600"
+								disabled={selected.length === 0}
+							>
 								Đặt hàng
 							</button>
 						</a>

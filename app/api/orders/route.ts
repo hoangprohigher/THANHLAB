@@ -17,22 +17,16 @@ export async function GET() {
 	return NextResponse.json({ ok: true, orders });
 }
 
-export async function POST() {
+export async function POST(req: Request) {
 	await connectMongo();
 	const user = await getDemoUser();
 	if (!user) return NextResponse.json({ ok: false }, { status: 400 });
-	const cart = await Cart.findOne({ user: user._id }).lean();
-	if (!cart || !cart.items?.length) return NextResponse.json({ ok: false, error: "Cart empty" }, { status: 400 });
-	const items = await Promise.all(
-		cart.items.map(async (it: any) => {
-			const prod = await Product.findById(it.product).lean();
-			const price = (prod && typeof prod === "object" && "price" in prod) ? (prod as any).price : 0;
-			return { product: it.product, quantity: it.quantity, price };
-		})
-	);
-	const total = items.reduce((s, it) => s + it.price * it.quantity, 0);
-	const order = await Order.create({ user: user._id, items, total, status: "paid" });
-	await Cart.updateOne({ user: user._id }, { $set: { items: [] } });
+	const body = await req.json();
+	const { name, email, address, items } = body;
+	if (!items || !items.length) return NextResponse.json({ ok: false, error: "Chưa chọn sản phẩm" }, { status: 400 });
+	const total = items.reduce((s: number, it: any) => s + it.price * it.quantity, 0);
+	const order = await Order.create({ user: user._id, items, total, status: "pending", recipientName: name, recipientAddress: address });
+	// Optionally: xóa các sản phẩm đã đặt khỏi giỏ hàng
 	return NextResponse.json({ ok: true, orderId: order._id });
 }
 
