@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FileText, Edit, Trash2, Plus, Tag } from "lucide-react";
 import { PostBlockEditor, PostBlock } from "@/components/post-block-editor";
+import { Dialog } from "@/components/ui/dialog";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -15,6 +16,8 @@ export default function AdminPostsPage() {
   const [content, setContent] = useState("");
   const [tags, setTags] = useState("");
   const [blocks, setBlocks] = useState<PostBlock[]>([]);
+  const [editPost, setEditPost] = useState<any>(null);
+  const [editBlocks, setEditBlocks] = useState<PostBlock[]>([]);
 
   async function addPost() {
     const tagsArray = tags.split(",").map(tag => tag.trim()).filter(tag => tag);
@@ -33,6 +36,18 @@ export default function AdminPostsPage() {
 
   async function removePost(id: string) {
     await fetch(`/api/admin/posts?id=${id}`, { method: "DELETE" });
+    mutate();
+  }
+
+  async function saveEditPost() {
+    if (!editPost) return;
+    await fetch("/api/admin/posts", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: editPost._id, title: editPost.title, slug: editPost.slug, tags: editPost.tags, content: JSON.stringify(editBlocks) }),
+    });
+    setEditPost(null);
+    setEditBlocks([]);
     mutate();
   }
 
@@ -99,19 +114,83 @@ export default function AdminPostsPage() {
                   </div>
                 </div>
               </div>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => removePost(String(post._id))}
-                className="text-red-600 hover:text-red-700"
-              >
-                <Trash2 className="h-4 w-4 mr-1" />
-                Xóa
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setEditPost(post);
+                    setEditBlocks(post.content ? JSON.parse(post.content) : []);
+                  }}
+                  className="text-blue-600 hover:text-blue-700"
+                >
+                  <Edit className="h-4 w-4 mr-1" />
+                  Chỉnh sửa
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => removePost(String(post._id))}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <Trash2 className="h-4 w-4 mr-1" />
+                  Xóa
+                </Button>
+              </div>
             </div>
           ))}
         </div>
       </div>
+
+      {/* Popup chỉnh sửa bài viết */}
+      {editPost && (
+        <Dialog open={true} onOpenChange={v => !v && setEditPost(null)}>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 relative">
+              <button
+                className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                onClick={() => setEditPost(null)}
+                title="Đóng"
+              >
+                &times;
+              </button>
+              <h3 className="text-lg font-semibold mb-4">Chỉnh sửa bài viết</h3>
+              <div className="mb-3">
+                <Input
+                  placeholder="Tiêu đề bài viết"
+                  value={editPost.title}
+                  onChange={e => setEditPost((p: any) => ({ ...p, title: e.target.value }))}
+                />
+              </div>
+              <div className="mb-3">
+                <Input
+                  placeholder="Slug"
+                  value={editPost.slug}
+                  onChange={e => setEditPost((p: any) => ({ ...p, slug: e.target.value }))}
+                />
+              </div>
+              <div className="mb-3">
+                <Input
+                  placeholder="Tags (phân cách bằng dấu phẩy)"
+                  value={editPost.tags?.join(", ")}
+                  onChange={e => setEditPost((p: any) => ({ ...p, tags: e.target.value.split(",").map((t: string) => t.trim()).filter((t: string) => t) }))}
+                />
+              </div>
+              <div className="mb-3">
+                <PostBlockEditor value={editBlocks} onChange={setEditBlocks} />
+              </div>
+              <div className="flex gap-2 justify-end mt-4">
+                <Button onClick={saveEditPost} disabled={!editPost.title || !editPost.slug || editBlocks.length === 0}>
+                  Lưu thay đổi
+                </Button>
+                <Button variant="outline" onClick={() => setEditPost(null)}>
+                  Đóng
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Dialog>
+      )}
     </div>
   );
 }
