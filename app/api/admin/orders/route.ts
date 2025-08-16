@@ -6,7 +6,7 @@ import { isAdminRequest } from "@/lib/admin-guard";
 export async function GET(req: Request) {
   if (!(await isAdminRequest(req as any))) return NextResponse.json({ ok: false }, { status: 401 });
   await connectMongo();
-  const items = await Order.find().sort({ createdAt: -1 }).lean();
+  const items = await Order.find().sort({ createdAt: -1 }).populate('items.product').lean();
   return NextResponse.json({ ok: true, items });
 }
 
