@@ -3,10 +3,16 @@ import Link from "next/link";
 import { connectMongo } from "@/lib/mongodb";
 import { User } from "@/lib/models/User";
 import { Order } from "@/lib/models/Order";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export default async function OrdersPage() {
 	await connectMongo();
-	const user = await User.findOne({ email: "customer@thanhlab.vn" });
+	const session = await getServerSession(authOptions);
+	if (!session?.user?.email) {
+		return <div className="space-y-6"><h1 className="text-xl font-semibold">Đơn hàng</h1><p>Bạn cần đăng nhập để xem đơn hàng.</p></div>;
+	}
+	const user = await User.findOne({ email: session.user.email });
 	const orders = user ? await Order.find({ user: user._id }).populate('items.product').lean() : [];
 	return (
 		<div className="space-y-6">

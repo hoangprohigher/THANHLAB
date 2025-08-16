@@ -7,18 +7,51 @@ export default function CartPage() {
 	const [cart, setCart] = useState<any>(null);
 	const [loadingIdx, setLoadingIdx] = useState<number | null>(null);
 	const [selected, setSelected] = useState<number[]>([]);
-	useEffect(() => {
-		async function fetchCart() {
-			const res = await fetch("/api/cart");
-			const data = await res.json();
-			setCart(data);
-		}
-		fetchCart();
-	}, []);
 	const items = cart?.cart?.items || [];
 	const total = selected.length === 0
 		? 0
 		: selected.reduce((sum, idx) => sum + ((items[idx]?.product?.price || 0) * items[idx]?.quantity), 0);
+	async function fetchCart() {
+		const res = await fetch("/api/cart");
+		const data = await res.json();
+		setCart(data);
+	}
+	useEffect(() => {
+		fetchCart();
+	}, []);
+	useEffect(() => {
+		function handleStorageChange(e: StorageEvent) {
+			if (e.key === "cart") {
+				fetchCart();
+			}
+			if (e.key === "removeSelectedCartItems" && e.newValue === "true") {
+				// Lấy selectedCartItems từ localStorage
+				const selected = localStorage.getItem("selectedCartItems");
+				const cartData = localStorage.getItem("cart");
+				if (cartData && selected) {
+					const cartObj = JSON.parse(cartData);
+					const selectedIdx = JSON.parse(selected);
+					cartObj.items = cartObj.items.filter((_: any, idx: number) => !selectedIdx.includes(idx));
+					localStorage.setItem("cart", JSON.stringify(cartObj));
+					localStorage.removeItem("selectedCartItems");
+				}
+				setSelected([]);
+				localStorage.removeItem("removeSelectedCartItems");
+				fetchCart();
+			}
+		}
+		window.addEventListener("storage", handleStorageChange);
+		return () => window.removeEventListener("storage", handleStorageChange);
+	}, []);
+	useEffect(() => {
+		function onVisible() {
+			if (document.visibilityState === "visible") {
+				fetchCart();
+			}
+		}
+		document.addEventListener("visibilitychange", onVisible);
+		return () => document.removeEventListener("visibilitychange", onVisible);
+	}, []);
 	async function handleRemove(productId: string, idx: number) {
 		setLoadingIdx(idx);
 		await fetch(`/api/cart?productId=${productId}`, { method: "DELETE" });

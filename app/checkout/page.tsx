@@ -3,8 +3,10 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useRouter } from "next/navigation";
 
 export default function CheckoutPage() {
+  const router = useRouter();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -63,7 +65,19 @@ export default function CheckoutPage() {
     }
     setMessage(`Đặt hàng thành công. Mã đơn: ${data.orderId}`);
     if (typeof window !== "undefined") {
-      localStorage.removeItem("selectedCartItems");
+      // Xóa các sản phẩm đã chọn khỏi giỏ hàng
+      const cartData = localStorage.getItem("cart");
+      const selected = localStorage.getItem("selectedCartItems");
+      if (cartData && selected) {
+        const cartObj = JSON.parse(cartData);
+        const selectedIdx = JSON.parse(selected);
+        cartObj.items = cartObj.items.filter((_: any, idx: number) => !selectedIdx.includes(idx));
+        localStorage.setItem("cart", JSON.stringify(cartObj));
+        localStorage.removeItem("selectedCartItems");
+        localStorage.setItem("removeSelectedCartItems", "true");
+      }
+      // Chuyển hướng sang trang đơn hàng
+      router.push("/orders");
     }
   }
 
