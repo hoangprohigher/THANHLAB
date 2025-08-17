@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 import useSWR from "swr";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
 import { TrendingUp, Users, ShoppingCart, Package, MessageSquare } from "lucide-react";
@@ -8,6 +9,37 @@ const fetcher = (url: string) => fetch(url).then((r) => r.json());
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
 export default function AdminDashboardPage() {
+	// Slide Images State
+	const { data: slideImages, mutate } = useSWR("/api/slide-images", fetcher);
+	const [showAdd, setShowAdd] = React.useState(false);
+	const [url, setUrl] = React.useState("");
+	const [loading, setLoading] = React.useState(false);
+
+	async function handleAddImage(e: React.FormEvent) {
+		e.preventDefault();
+		if (!url) return;
+		setLoading(true);
+		await fetch("/api/slide-images", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ url }),
+		});
+		setUrl("");
+		setShowAdd(false);
+		setLoading(false);
+		mutate();
+	}
+
+	async function handleDeleteImage(id: string) {
+		setLoading(true);
+		await fetch("/api/slide-images", {
+			method: "DELETE",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ id }),
+		});
+		setLoading(false);
+		mutate();
+	}
 	const { data } = useSWR("/api/admin/metrics", fetcher, { refreshInterval: 5000 });
 	const stats = data?.stats || { users: 0, orders: 0, products: 0, requests: 0 };
 	const chart = (data?.revenue || []).map((d: any) => ({ date: d._id, revenue: d.revenue }));
@@ -30,7 +62,7 @@ export default function AdminDashboardPage() {
 	];
 
 	return (
-		<div className="space-y-8">
+			<div className="space-y-8">
 			<div className="flex items-center justify-between">
 				<h2 className="text-2xl font-bold text-gray-900">Bảng điều khiển tổng quan</h2>
 				<div className="text-sm text-gray-500">
@@ -155,7 +187,53 @@ export default function AdminDashboardPage() {
 				{/* Recent Activity */}
 				<div className="bg-white rounded-lg shadow p-6">
 					<h3 className="text-lg font-semibold text-gray-900 mb-4">Hoạt động gần đây</h3>
-					<div className="space-y-3">
+						<div className="space-y-8">
+							{/* Slide Images Management */}
+							<div className="bg-white rounded-lg shadow p-6 mb-6">
+								<div className="flex items-center justify-between mb-4">
+									<h2 className="text-xl font-bold text-gray-900">Ảnh slideshow trang chính</h2>
+									<button
+										className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+										onClick={() => setShowAdd((v) => !v)}
+									>
+										{showAdd ? "Đóng" : "Thêm ảnh"}
+									</button>
+								</div>
+								{showAdd && (
+									<form className="flex gap-2 mb-4" onSubmit={handleAddImage}>
+										<input
+											type="url"
+											className="border rounded px-3 py-2 flex-1"
+											placeholder="Nhập URL ảnh..."
+											value={url}
+											onChange={(e) => setUrl(e.target.value)}
+											required
+										/>
+										<button
+											type="submit"
+											className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+											disabled={loading}
+										>
+											Lưu
+										</button>
+									</form>
+								)}
+								<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+									{slideImages?.map((img: any) => (
+										<div key={img._id} className="relative group border rounded overflow-hidden">
+											<img src={img.url} alt="slide" className="w-full h-32 object-cover" />
+											<button
+												className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition"
+												onClick={() => handleDeleteImage(img._id)}
+												disabled={loading}
+											>
+												Xóa
+											</button>
+										</div>
+									))}
+									{slideImages?.length === 0 && <div className="text-gray-500">Chưa có ảnh nào</div>}
+								</div>
+							</div>
 						<div className="flex items-center text-sm">
 							<div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
 							<span className="text-gray-600">Đơn hàng mới #12345</span>

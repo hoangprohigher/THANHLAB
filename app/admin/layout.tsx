@@ -23,6 +23,7 @@ const navigation = [
   { name: "Dịch vụ", href: "/admin/services", icon: Settings },
   { name: "Bài viết", href: "/admin/posts", icon: FileText },
   { name: "Yêu cầu hỗ trợ", href: "/admin/requests", icon: MessageSquare },
+  { name: "Quản lý ảnh trang chính", href: "/admin/slides", icon: FileText },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
