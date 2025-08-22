@@ -13,10 +13,24 @@ export async function GET(req: Request) {
 export async function POST(req: NextRequest) {
   if (!(await isAdminRequest(req))) return NextResponse.json({ ok: false }, { status: 401 });
   await connectMongo();
-  const { name, slug, description, price } = await req.json();
+  const { id, name, slug, description, price, images } = await req.json();
   if (!name || !slug || !price) return NextResponse.json({ ok: false }, { status: 400 });
-  const created = await Service.create({ name, slug, description, price });
-  return NextResponse.json({ ok: true, id: created._id });
+  if (id) {
+    await Service.updateOne({ _id: id }, {
+      $set: {
+        name,
+        slug,
+        description,
+        price,
+        images: Array.isArray(images) ? images : [],
+      }
+    });
+    return NextResponse.json({ ok: true, id });
+  } else {
+    const created = await Service.create({ name, slug, description, price, images: Array.isArray(images) ? images : [] });
+    return NextResponse.json({ ok: true, id: created._id });
+  }
+
 }
 
 export async function DELETE(req: NextRequest) {
