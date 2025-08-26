@@ -61,42 +61,75 @@ export default function GuestCartPage() {
   };
   return (
     <div className="max-w-3xl mx-auto p-4">
-      <h1 className="text-xl font-bold mb-4">GIỎ HÀNG</h1>
-      <table className="w-full border mb-4">
-        <thead>
-          <tr className="bg-red-600 text-white">
-            <th>STT</th>
-            <th>Hình ảnh</th>
-            <th>Mã sản phẩm</th>
-            <th>Tên sản phẩm</th>
-            <th>Đơn giá</th>
-            <th>Số lượng</th>
-            <th>Thành tiền</th>
-            <th>[Xóa]</th>
-          </tr>
-        </thead>
-        <tbody>
-          {cart.length === 0 ? (
-            <tr><td colSpan={8} className="text-center">Chưa có sản phẩm trong giỏ hàng</td></tr>
-          ) : cart.map((item, idx) => (
-            <tr key={idx}>
-              <td colSpan={2}>
-                <Image src={item.image} alt="sp" width={64} height={64} className="object-cover rounded" />
-              </td>
-              <td>{item.code}</td>
-              <td>{item.name}</td>
-              <td>{typeof item.price === "number" ? item.price.toLocaleString() : 0}</td>
-              <td>{item.qty ?? 0}</td>
-              <td>{typeof item.price === "number" && typeof item.qty === "number" ? (item.price * item.qty).toLocaleString() : 0}</td>
-              <td><button onClick={() => {
-                const newCart = cart.filter((_, i) => i !== idx);
-                setCart(newCart);
-                localStorage.setItem("guest-cart", JSON.stringify(newCart));
-              }}>❌</button></td>
+      <h1 className="text-2xl font-extrabold mb-6 text-blue-700">GIỎ HÀNG</h1>
+      <div className="overflow-x-auto rounded-lg shadow">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="bg-gray-100 text-gray-700 text-base">
+              <th className="py-2 px-3 font-semibold text-left">Sản phẩm</th>
+              <th className="py-2 px-3 font-semibold text-right">Đơn giá</th>
+              <th className="py-2 px-3 font-semibold text-center">Số lượng</th>
+              <th className="py-2 px-3 font-semibold text-right">Số tiền</th>
+              <th className="py-2 px-3 font-semibold text-center">Thao tác</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {cart.length === 0 ? (
+              <tr><td colSpan={5} className="text-center py-6 text-gray-500">Chưa có sản phẩm trong giỏ hàng</td></tr>
+            ) : cart.map((item, idx) => (
+              <tr key={idx} className="border-b hover:bg-blue-50 transition">
+                <td className="py-2 px-3 flex items-center gap-3">
+                  <Image src={item.image} alt={item.name} width={56} height={56} className="object-cover rounded-lg border shadow" />
+                  <span className="font-semibold text-gray-900">{item.name}</span>
+                </td>
+                <td className="text-right text-orange-600 font-bold">{typeof item.price === "number" ? item.price.toLocaleString() : 0} đ</td>
+                <td className="text-center">
+                  <label htmlFor={`qty-${idx}`} className="sr-only">Số lượng</label>
+                  <input
+                    id={`qty-${idx}`}
+                    type="number"
+                    min={1}
+                    value={item.qty ?? 1}
+                    onChange={e => {
+                      const newQty = Number(e.target.value);
+                      if (newQty > 0) {
+                        const newCart = [...cart];
+                        newCart[idx].qty = newQty;
+                        setCart(newCart);
+                      }
+                    }}
+                    className="border rounded px-2 py-1 w-16 text-center mr-2"
+                    placeholder="Số lượng"
+                  />
+                  <button
+                    onClick={() => {
+                      localStorage.setItem("guest-cart", JSON.stringify(cart));
+                      setCart([...cart]);
+                    }}
+                    className="bg-gray-900 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded shadow transition"
+                  >
+                    Cập nhật
+                  </button>
+                </td>
+                <td className="text-right font-bold">{typeof item.price === "number" && typeof item.qty === "number" ? (item.price * item.qty).toLocaleString() : 0} đ</td>
+                <td className="text-center">
+                  <button
+                    onClick={() => {
+                      const newCart = cart.filter((_, i) => i !== idx);
+                      setCart(newCart);
+                      localStorage.setItem("guest-cart", JSON.stringify(newCart));
+                    }}
+                    className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded shadow transition"
+                    title="Xóa sản phẩm"
+                  >
+                    <span className="inline-flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg> Xóa</span>
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
   <div className="mb-4 font-bold">Tổng cộng: {cart.reduce((sum, i) => sum + (typeof i.price === "number" && typeof i.qty === "number" ? i.price * i.qty : 0), 0).toLocaleString()} đ</div>
       <form className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div>

@@ -21,11 +21,27 @@ function AppHeader() {
   };
 
   return (
-    <header className="bg-white shadow-md px-4 py-2 flex items-center justify-between">
-      <div className="flex items-center space-x-4">
+    <header className="bg-white shadow-md px-8 py-3 flex items-center justify-between">
+      <div className="flex items-center gap-12 w-full">
         <Link href="/">
-          <span className="font-bold text-lg">THANHLAB</span>
+          <span className="font-extrabold text-2xl tracking-wide text-blue-700">THANHLAB</span>
         </Link>
+        <nav className="flex-1 flex justify-center">
+          <ul className="flex gap-10">
+            <li>
+              <Link href="/" className="font-semibold text-gray-700 hover:text-blue-600 transition-colors px-2 py-1 rounded-lg hover:bg-blue-50">Trang chủ</Link>
+            </li>
+            <li>
+              <Link href="/catalog" className="font-semibold text-gray-700 hover:text-blue-600 transition-colors px-2 py-1 rounded-lg hover:bg-blue-50">Sản phẩm</Link>
+            </li>
+            <li>
+              <Link href="/services" className="font-semibold text-gray-700 hover:text-blue-600 transition-colors px-2 py-1 rounded-lg hover:bg-blue-50">Dịch vụ</Link>
+            </li>
+            <li>
+              <Link href="/posts" className="font-semibold text-gray-700 hover:text-blue-600 transition-colors px-2 py-1 rounded-lg hover:bg-blue-50">Bài viết</Link>
+            </li>
+          </ul>
+        </nav>
       </div>
       <div className="flex items-center space-x-2">
         {session ? (

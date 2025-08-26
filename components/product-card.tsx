@@ -22,7 +22,14 @@ export function ProductCard({ product }: { product: any }) {
         </div>
       </Link>
       {/* Nút mua/giỏ hàng */}
-      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition z-10">
+      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition z-10" data-product-id={String(product._id)} data-product-info={JSON.stringify({
+        image: product.images?.[0] || "",
+        code: product.code || "",
+        name: product.name,
+        price: product.price,
+        slug: product.slug,
+        category: product.category?.name || ""
+      })}>
         <AddToCartButton productId={String(product._id)} />
       </div>
       {/* Badge tồn kho */}
